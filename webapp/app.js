@@ -1,7 +1,7 @@
 // Spotify Web Player - Vanilla JavaScript Implementation
 // Configuration (loaded from config.js)
 const CLIENT_ID = CONFIG?.CLIENT_ID || 'PLACEHOLDER_CLIENT_ID';
-const REDIRECT_URI = CONFIG?.REDIRECT_URI || window.location.origin;
+const REDIRECT_URI = CONFIG?.REDIRECT_URI || (window.location.origin + (window.location.pathname.endsWith('/') ? 'index.html' : window.location.pathname));
 const SCOPES = CONFIG?.SCOPES?.join(" ") || [
   "streaming",
   "user-read-email",
@@ -19,7 +19,7 @@ const SCOPES = CONFIG?.SCOPES?.join(" ") || [
 // Validate configuration on load
 if (typeof CONFIG === 'undefined') {
   console.error('❌ CONFIG object not found! Make sure config.js is loaded before app.js');
-} else if (CLIENT_ID === 'PLACEHOLDER_CLIENT_ID' || CLIENT_ID === 'undefined' || !CLIENT_ID) {
+} else if (!CLIENT_ID || /YOUR_SPOTIFY_CLIENT_ID/i.test(String(CLIENT_ID)) || CLIENT_ID === 'PLACEHOLDER_CLIENT_ID' || CLIENT_ID === 'undefined') {
   console.error('❌ Spotify Client ID not properly configured!');
   console.error('📝 Current CLIENT_ID:', CLIENT_ID);
   console.error('🔧 Please check your config.js file or GitHub secrets');
@@ -448,15 +448,15 @@ function logout() {
 }
 
 // Initialize Spotify SDK
+let sdkScriptAppended = false;
+let sdkInitialized = false;
+
 function initializeSpotifyPlayer() {
   if (!tokenBundle?.access_token) return;
 
-  const script = document.createElement("script");
-  script.src = "https://sdk.scdn.co/spotify-player.js";
-  script.async = true;
-  document.body.appendChild(script);
+  const attachListeners = () => {
+    if (sdkInitialized || !window.Spotify || !window.Spotify.Player) return;
 
-  window.onSpotifyWebPlaybackSDKReady = () => {
     const spotifyPlayer = new window.Spotify.Player({
       name: "R1 Web Player",
       getOAuthToken: (cb) => cb(tokenBundle.access_token),
@@ -464,10 +464,12 @@ function initializeSpotifyPlayer() {
     });
 
     player = spotifyPlayer;
+    sdkInitialized = true;
 
     spotifyPlayer.addListener("ready", ({ device_id }) => {
       deviceId = device_id;
       updateReadyState(true);
+      showPlayerScreen();
 
       const getVolumeFn = spotifyPlayer.getVolume;
       if (typeof getVolumeFn === "function") {
@@ -499,7 +501,7 @@ function initializeSpotifyPlayer() {
       updateAudioUnlockState(true, false, isIOS()
         ? "Playback is blocked until you enable audio. Tap the volume icon."
         : "Playback is blocked until audio is enabled. Tap the volume icon.");
-    
+
       const tryResume = async () => {
         const ok = await ensureAudioUnlockedFromGesture();
         if (ok) {
@@ -514,7 +516,7 @@ function initializeSpotifyPlayer() {
 
     spotifyPlayer.addListener("player_state_changed", (state) => {
       if (!state) return;
-    
+
       const current = state.track_window?.current_track;
       updatePlayerState({
         paused: state.paused,
@@ -524,22 +526,35 @@ function initializeSpotifyPlayer() {
         artists: current?.artists?.map((a) => a.name).join(", "),
         albumArt: current?.album?.images?.[0]?.url,
       });
-    
-      // Auto-recover logic
+
       const userPaused = state?.paused && state?.context?.metadata?.is_paused_by_user;
       const disallow = state?.restrictions?.disallow_resuming_reasons ?? [];
       const canResume = !userPaused && !disallow.length;
-    
-      // If it suddenly paused within the first 15s and we didn't pause it, resume.
+
       if (state.paused && canResume && state.position < 15000 && state.position > 0) {
-        setTimeout(() => {
-          player?.resume?.().catch(() => {});
-        }, 100);
+        setTimeout(() => { player?.resume?.().catch(() => {}); }, 100);
       }
     });
 
     spotifyPlayer.connect();
   };
+
+  if (window.Spotify && window.Spotify.Player) {
+    attachListeners();
+  } else {
+    if (!sdkScriptAppended) {
+      const script = document.createElement("script");
+      script.src = "https://sdk.scdn.co/spotify-player.js";
+      script.async = true;
+      document.body.appendChild(script);
+      sdkScriptAppended = true;
+    }
+    const prevReady = window.onSpotifyWebPlaybackSDKReady;
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      if (typeof prevReady === "function") prevReady();
+      attachListeners();
+    };
+  }
 }
 
 // Event listeners
