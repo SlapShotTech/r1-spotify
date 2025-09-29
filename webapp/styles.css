@@ -1,0 +1,334 @@
+/* ========== Global base (keep minimal) ========== */
+:root{
+  --player-fg:#1A0C1D;
+  --app-width:240px;
+  --app-height:282px;
+}
+
+*,
+*::before,
+*::after{box-sizing:border-box;}
+
+html,body{height:100%;min-height:100%;}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  background:radial-gradient(ellipse at center,#ff5605 0%,#e0ad00 100%);
+  color:#e6e6e6;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+body.player-bg{
+  /* Dark gradient that matches your screenshot */
+  background:radial-gradient(ellipse at center,#636363 0%,#262626 100%);
+}
+
+#root{width:100%;display:flex;justify-content:center;}
+
+.app{
+  width:var(--app-width);
+  height:var(--app-height);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:12px 10px;
+  position:relative;
+  gap:10px;
+}
+
+/* Utility row under the card */
+.controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto;
+  width:100%;
+}
+
+.btn,
+button.button{
+  font:inherit;
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  cursor:pointer;
+  width:100%;
+}
+.btn:disabled,
+button.button:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ================= PLAYER CARD ================== */
+.player{
+  position:relative;
+  width:100%;
+  height:250px;
+  margin:0 auto;
+  border-radius:22px;
+  overflow:hidden;
+  color:var(--player-fg);
+  box-shadow:
+    0 10px 18px -4px rgba(0,0,0,.5),
+    0 32px 34px -16px rgba(0,0,0,.25);
+  background:transparent;
+}
+
+/* meta (song/artist) */
+.player__meta{
+  position:absolute;
+  top:12%;
+  left:0; right:0;
+  width:100%;
+  z-index:1;
+  padding:24px 12px;
+  text-align:center;
+  text-shadow:0 1px 1px rgba(255,255,255,.4);
+  font-size:22px;
+  box-sizing:border-box;
+}
+.player__song{
+  font-weight:700;
+  line-height:1.05;
+  font-size:1em;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.player__artist{
+  font-weight:200;
+  font-size:12px;
+  margin-top:6px;
+  letter-spacing:.02em;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.player__swipe-hint{
+  font-weight:300;
+  font-size:10px;
+  margin-top:8px;
+  letter-spacing:.05em;
+  opacity:.7;
+  text-transform:uppercase;
+  text-shadow:0 1px 1px rgba(255,255,255,.6);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:.7;}
+  50%{opacity:.4;}
+}
+
+/* main artwork background */
+.player__bg{
+  position:absolute;
+  inset:0;
+  background-position:bottom center;
+  background-size:cover;
+}
+.player__bg::before,
+.player__bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  display:block;
+}
+.player__bg::after{
+  background:linear-gradient(to top,#000,#fff);
+  opacity:.2;
+  mix-blend-mode:soft-light;
+}
+
+/* controls rail */
+.player__controls{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  width:100%;
+  height:96px;
+  background-color:rgba(255,255,255,.2);
+  box-shadow:inset 0 1px rgba(255,255,255,.3);
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding:0 16px 12px;
+}
+.player__controls::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  box-shadow:0 -5px 10px 0 rgba(0,0,0,.6);
+  mix-blend-mode:soft-light;
+}
+
+.player__controls-bg{
+  position:absolute;
+  inset:0;
+  background-position:bottom center;
+  background-size:cover;
+  filter:blur(40px);
+  overflow:hidden;
+}
+.player__controls-bg::before{
+  content:"";
+  position:absolute;
+  inset:-25% 0 -25% 0;
+  background:linear-gradient(to top,#000,#fff);
+  opacity:.4;
+  mix-blend-mode:soft-light;
+}
+
+.player__transport{
+  position:relative;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+/* transport buttons (circular) */
+.player__play,
+.player__prev,
+.player__next{
+  position:relative;
+  background:rgba(255,255,255,.01);
+  border-radius:60px;
+  box-shadow:0 -2px 4px 0 rgba(255,255,255,.1);
+  cursor:pointer;
+  transition:background .15s linear;
+  border:0; outline:none; padding:0;
+  -webkit-appearance:none; appearance:none;
+}
+.player__play::before,
+.player__prev::before,
+.player__next::before{
+  content:""; position:absolute; inset:0; border-radius:60px;
+  background:linear-gradient(to top,rgba(255,255,255,.1),rgba(255,255,255,.04));
+  box-shadow:0 -1px 1px 0 rgba(255,255,255,.6);
+  mix-blend-mode:overlay;
+}
+.player__play::after,
+.player__prev::after,
+.player__next::after{
+  content:""; position:absolute; inset:0; border-radius:60px;
+  box-shadow:0 5px 10px 0 rgba(0,0,0,.6);
+  mix-blend-mode:soft-light;
+}
+.player__play:hover,
+.player__prev:hover,
+.player__next:hover{
+  background:radial-gradient(ellipse at center,
+    rgba(255,86,5,.4) 15%,
+    rgba(255,86,5,.1) 80%,
+    rgba(255,86,5,.2) 100%);
+}
+.player__play{width:84px;height:66px;}
+.player__prev,.player__next{width:54px;height:54px;}
+
+.player__play:disabled,
+.player__prev:disabled,
+.player__next:disabled{opacity:.45;cursor:not-allowed;}
+
+.player__icon{
+  position:absolute; inset:0; margin:auto;
+  width:60%; height:60%;
+  color:rgba(0,0,0,.85);
+  display:flex; align-items:center; justify-content:center;
+}
+.player__icon svg{width:100%; height:100%; display:block;}
+.player__icon-play{font-size:24px;}
+.player__icon-prev,.player__icon-next{font-size:22px;}
+
+/* corner icons */
+.player__list,
+.player__volume{
+  position:absolute; top:12px;
+  width:40px; height:40px; border-radius:20px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.22);
+  color:var(--player-fg);
+  display:flex; align-items:center; justify-content:center;
+  padding:0; cursor:pointer;
+  transition:background .15s ease, transform .15s ease;
+  z-index:2;
+}
+.player__list{left:12px;}
+.player__volume{right:12px;}
+.player__list:hover,
+.player__volume:hover,
+.player__list:focus-visible,
+.player__volume:focus-visible{background:rgba(255,255,255,.32);}
+.player__volume--alert{box-shadow:0 0 0 2px rgba(255,255,255,.6);}
+.player__volume--locked{background:rgba(255,255,255,.35);}
+.player__volume-meter{
+  position:absolute; bottom:-14px; right:-6px;
+  background:rgba(0,0,0,.65); color:#fff; font-size:10px;
+  padding:2px 6px; border-radius:12px; letter-spacing:.03em;
+}
+.player__volume-status{
+  position:absolute; top:46px; right:-4px;
+  background:rgba(26,12,29,.88); color:#fff; font-size:10px;
+  padding:4px 8px; border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.35);
+  white-space:nowrap;
+}
+
+.player__list:focus-visible,
+.player__volume:focus-visible,
+.player__play:focus-visible,
+.player__prev:focus-visible,
+.player__next:focus-visible{
+  outline:2px solid rgba(255,255,255,.8);
+  outline-offset:2px;
+}
+
+/* When the album art is too small, avoid pixelation artifacts */
+.player__bg,.player__controls-bg{
+  image-rendering:-webkit-optimize-contrast;
+  image-rendering:crisp-edges;
+}
+
+/* Error text */
+.error{
+  color:#ffebe6; background:#912018;
+  padding:8px 10px; border-radius:8px;
+  width:100%; margin:6px 0 0; text-align:center;
+}
+
+/* Utility drawer */
+.utility-drawer{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  z-index:5;
+}
+.utility-drawer__scrim{
+  position:absolute; inset:0;
+  background:rgba(0,0,0,.45); cursor:pointer;
+}
+.utility-drawer__panel{
+  position:relative;
+  background:rgba(15,6,0,.9);
+  padding:12px;
+  border-top-left-radius:18px; border-top-right-radius:18px;
+  display:flex; flex-direction:column; gap:12px;
+  box-shadow:0 -8px 20px rgba(0,0,0,.45);
+  z-index:1;
+}
+.utility-drawer__header{
+  display:flex; justify-content:space-between; align-items:center;
+}
+.utility-drawer__header h2{
+  font-size:14px; margin:0; text-transform:uppercase; letter-spacing:.08em;
+}
+.utility-drawer__close{
+  width:28px; height:28px; border-radius:14px;
+  background:rgba(255,255,255,.2); color:#fff; border:0;
+  font-size:18px; line-height:1; cursor:pointer;
+}
+.utility-drawer__actions{display:flex; flex-direction:column; gap:8px;}
+.utility-drawer .btn{width:100%;}
