@@ -1,6 +1,6 @@
 // Spotify Web Player - Vanilla JavaScript Implementation
 // Configuration (loaded from config.js)
-const CLIENT_ID = CONFIG?.CLIENT_ID || 'YOUR_SPOTIFY_CLIENT_ID';
+const CLIENT_ID = CONFIG?.CLIENT_ID || 'PLACEHOLDER_CLIENT_ID';
 const REDIRECT_URI = CONFIG?.REDIRECT_URI || window.location.origin;
 const SCOPES = CONFIG?.SCOPES?.join(" ") || [
   "streaming",
@@ -19,7 +19,7 @@ const SCOPES = CONFIG?.SCOPES?.join(" ") || [
 // Validate configuration on load
 if (typeof CONFIG === 'undefined') {
   console.error('❌ CONFIG object not found! Make sure config.js is loaded before app.js');
-} else if (CLIENT_ID === 'YOUR_SPOTIFY_CLIENT_ID' || CLIENT_ID === 'undefined' || !CLIENT_ID) {
+} else if (CLIENT_ID === 'PLACEHOLDER_CLIENT_ID' || CLIENT_ID === 'undefined' || !CLIENT_ID) {
   console.error('❌ Spotify Client ID not properly configured!');
   console.error('📝 Current CLIENT_ID:', CLIENT_ID);
   console.error('🔧 Please check your config.js file or GitHub secrets');
