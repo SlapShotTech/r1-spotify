@@ -7,8 +7,7 @@ const CONFIG = {
   CLIENT_ID: 'PLACEHOLDER_CLIENT_ID',
   
   // Optional: Custom redirect URI (defaults to current origin)
-  REDIRECT_URI: window.location.origin,
-  
+  REDIRECT_URI: (window.location.origin + (window.location.pathname.endsWith('/') ? 'index.html' : window.location.pathname)),  
   // Optional: Custom scopes (defaults to standard player scopes)
   SCOPES: [
     "streaming",
