@@ -20,6 +20,10 @@ jobs:
         with:
           submodules: true
           lfs: false
+      - name: Insert Client ID into config
+        run: |
+          sed -i "s|CLIENT_ID: 'PLACEHOLDER_CLIENT_ID'|CLIENT_ID: '${{ secrets.CLIENT_ID }}'|g" ./webapp/config.js
+        shell: bash
        
       - name: Build And Deploy
         id: builddeploy
@@ -48,6 +52,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ZEALOUS_CLIFF_06204B70F }}
           action: "close"
+
 
 
 
