@@ -4,7 +4,7 @@
 // Get these from your Spotify Developer Dashboard: https://developer.spotify.com/dashboard
 const CONFIG = {
   // Your Spotify App Client ID - REPLACE THIS!
-  CLIENT_ID: secrets.CLIENT_ID,
+  CLIENT_ID: 'secrets.CLIENT_ID',
   
   // Optional: Custom redirect URI (defaults to current origin)
   REDIRECT_URI: window.location.origin,
